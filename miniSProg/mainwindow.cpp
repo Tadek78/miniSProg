@@ -166,6 +166,8 @@ void MainWindow::on_pushButton_Program_clicked()
         ui->textEdit->append(tr("ERROR: Select the bit file first."));
         setDefaultConsoleColor();
     } else {
+        // clear old messages
+        ui->textEdit->clear();
         QString program = ui->lineEdit_xc3sprog->text();
         QStringList arguments;
         arguments.append("-c");
@@ -174,6 +176,52 @@ void MainWindow::on_pushButton_Program_clicked()
         proc->start(program, arguments);
     }
 }
+
+void MainWindow::on_pushButton_WriteFlash_clicked()
+{
+    QFileInfo spiflasher_file;
+    // Check if spiflasher.bit exist in current folder
+    spiflasher_file.setFile("./spiflasher.bit");
+    if (spiflasher_file.exists()==0 || spiflasher_file.isFile()==0) {
+        ui->textEdit->setTextColor(Qt::red);
+        ui->textEdit->append(tr("ERROR: Please put spiflasher.bit into current folder."));
+        setDefaultConsoleColor();
+    } else if (ui->lineEdit_xc3sprog->text().isEmpty()) {
+        ui->textEdit->setTextColor(Qt::red);
+        ui->textEdit->append(tr("ERROR: Select the xc3sprog path first."));
+        setDefaultConsoleColor();
+    } else if (ui->lineEdit_bitfile->text().isEmpty()) {
+        ui->textEdit->setTextColor(Qt::red);
+        ui->textEdit->append(tr("ERROR: Select the bit file first."));
+        setDefaultConsoleColor();
+    } else {
+    // clear old messages
+        ui->textEdit->clear();
+        // first write: bitfile with spiflasher
+        ui->textEdit->append(tr("Writing spiflasher bitfile."));
+        QString program = ui->lineEdit_xc3sprog->text();
+        QStringList arguments;
+        arguments.append("-c");
+        arguments.append("ftdi");
+        arguments.append("spiflasher.bit");
+        proc->start(program, arguments);
+        ui->textEdit->repaint();
+        proc->waitForFinished(15000);
+        proc->close();
+
+        // second write: to SPI flash
+        ui->textEdit->append(tr("Writing bitfile to SPI flash."));
+        ui->textEdit->repaint();
+
+        arguments.clear();
+        arguments.append("-c");
+        arguments.append("ftdi");
+        arguments.append("-I");
+        arguments.append(ui->lineEdit_bitfile->text());
+        proc->start(program, arguments);
+    }
+}
+
 
 void MainWindow::on_actionAbout_triggered()
 {

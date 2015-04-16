@@ -52,6 +52,8 @@ private slots:
 
     void on_pushButton_Program_clicked();
 
+    void on_pushButton_WriteFlash_clicked();
+
     void on_actionAbout_triggered();
 
 private:
